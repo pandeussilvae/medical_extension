@@ -72,12 +72,12 @@
 
     <!-- actions opening views on models -->
         <record id="medical_action" model="ir.actions.act_window">
-            <field name="name">Pazienti in Carico</field>
+            <field name="name">Pazienti</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="context">{'default_is_patient': True, 'search_default_is_currently_admitted': True}</field>
-            <field name="domain">[('is_patient', '=', True), ('is_currently_admitted', '=', True)]</field>
+            <field name="domain">[('is_patient', '=', True)]</field>
             <field name="search_view_id" ref="medical_extension.view_res_partner_medical_search"/>
             <field name="view_ids" eval="[(5, 0, 0),
                 (0, 0, {'view_mode': 'kanban', 'view_id': ref('medical_extension.view_res_partner_medical_kanban')}),
@@ -85,7 +85,7 @@
                 (0, 0, {'view_mode': 'form', 'view_id': ref('medical_extension.view_partner_form_inherited')})]"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    Nessun paziente attualmente in carico!
+                    Nessun paziente trovato!
                 </p>
             </field>
         </record>
@@ -242,11 +242,6 @@
                   parent="menu_medical"
                   action="medical_action"
                   sequence="30"/>
-        <menuitem id="menu_all_patients"
-                  name="Tutti i Pazienti"
-                  parent="menu_medical"
-                  action="medical_all_patients_action"
-                  sequence="31"/>
         <menuitem id="menu_medical_staff"
                   name="Personale Sanitario"
                   parent="menu_medical"

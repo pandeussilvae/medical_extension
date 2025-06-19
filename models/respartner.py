@@ -65,6 +65,22 @@ class ResPartner(models.Model):
         help='Indica se il paziente ha un periodo terapico attivo (caricato ma non dimesso)'
     )
 
+    # Campo computed per determinare se il paziente è dimesso
+    is_discharged = fields.Boolean(
+        string='Paziente Dimesso',
+        compute='_compute_is_discharged',
+        store=True,
+        help='Indica se il paziente è stato dimesso e non ha nuovi periodi terapici aperti'
+    )
+
+    # Campo computed per determinare se il paziente non è mai stato preso in carico
+    never_admitted = fields.Boolean(
+        string='Mai preso in carico',
+        compute='_compute_never_admitted',
+        store=True,
+        help='Indica se il paziente non è mai stato preso in carico (nessun periodo terapico registrato)'
+    )
+
     # Modificato per fare riferimento ai campi esistenti nel modulo partner_contact_birthplace
     patient_birthplace = fields.Char(related='birth_city', string='Città di nascita', readonly=False)
     patient_birth_state_id = fields.Many2one(related='birth_state_id', comodel_name="res.country.state", string='Provincia di nascita', readonly=False)
@@ -72,6 +88,16 @@ class ResPartner(models.Model):
 
     patient_birthdate = fields.Date(related='birthdate_date', string='Data di nascita', readonly=False)
     patient_age = fields.Integer(related='age', string='Età')
+
+    @api.depends('patient_history_ids')
+    def _compute_never_admitted(self):
+        """Calcola se il paziente non è mai stato preso in carico"""
+        for partner in self:
+            if not partner.is_patient:
+                partner.never_admitted = False
+                continue
+            
+            partner.never_admitted = not bool(partner.patient_history_ids)
 
     @api.depends('patient_history_ids.admission_date', 'patient_history_ids.discharge_date')
     def _compute_is_currently_admitted(self):
@@ -87,9 +113,29 @@ class ResPartner(models.Model):
             )
             partner.is_currently_admitted = bool(active_periods)
 
-#    patient_relations = fields.Many2many('patient.relation', string='Relazioni Paziente')
-#    patient_diagnosis_ids = fields.Many2many('patient.diagnosis', string='Diagnosi del Paziente')
-#    patient_history_ids = fields.Many2many('medical.patient.history', string='Storico Ricoveri')
+    @api.depends('patient_history_ids.admission_date', 'patient_history_ids.discharge_date')
+    def _compute_is_discharged(self):
+        """Calcola se il paziente è dimesso"""
+        for partner in self:
+            if not partner.is_patient:
+                partner.is_discharged = False
+                continue
+
+            # Ordina i periodi terapici per data di ammissione decrescente
+            sorted_periods = partner.patient_history_ids.sorted(lambda h: h.admission_date or fields.Date.min, reverse=True)
+            
+            # Se non ci sono periodi, non è dimesso
+            if not sorted_periods:
+                partner.is_discharged = False
+                continue
+
+            # Prendi l'ultimo periodo
+            last_period = sorted_periods[0]
+            
+            # Il paziente è dimesso se l'ultimo periodo ha una data di dimissione
+            # e non ci sono periodi aperti successivi
+            partner.is_discharged = bool(last_period.discharge_date and not partner.is_currently_admitted)
+
     patient_relations = fields.One2many('patient.relation', 'main_model_id', string='Relazioni Paziente')
     patient_diagnosis_ids = fields.One2many('patient.diagnosis', 'patient_diag_id', string='Diagnosi del Paziente')
     patient_history_ids = fields.One2many('medical.patient.history', 'patient_id', string='Storico Periodi terapici')
