@@ -230,5 +230,41 @@
             </field>
         </record>
 
+    <!-- Azione server per forzare il ricalcolo dei campi computed -->
+    <record id="action_recompute_patient_fields" model="ir.actions.server">
+        <field name="name">Ricalcola Campi Pazienti</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="state">code</field>
+        <field name="code">
+# Ottieni tutti i partner che sono pazienti
+partners = env['res.partner'].search([('is_patient', '=', True)])
+
+# Forza il ricalcolo dei campi computed
+for partner in partners:
+    partner._compute_is_currently_admitted()
+    partner._compute_is_discharged()
+    partner._compute_never_admitted()
+
+# Mostra messaggio di conferma
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Ricalcolo Completato',
+        'message': f'Campi computed aggiornati per {len(partners)} pazienti',
+        'type': 'success',
+        'sticky': False,
+    }
+}
+        </field>
+    </record>
+
+    <!-- Menu per l'azione server -->
+    <menuitem id="menu_recompute_patient_fields"
+              name="Ricalcola Campi Pazienti"
+              parent="menu_medical"
+              action="action_recompute_patient_fields"
+              sequence="60"/>
+
 </odoo>
 
