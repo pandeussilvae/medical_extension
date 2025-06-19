@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_medical_patient_history,access.medical.patient.history,model_medical_patient_history,,1,1,1,1
+access_patient_relation_type,access.patient.relation.type,model_patient_relation_type,,1,1,1,1
+access_patient_relation,access.patient.relation,model_patient_relation,,1,1,1,1
+access_patient_diagnosis,access.patient.diagnosis,model_patient_diagnosis,,1,1,1,1
+access_medical_diagnosis,access.medical.diagnosis,model_medical_diagnosis,,1,1,1,1

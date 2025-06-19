@@ -1,0 +1,260 @@
+<odoo>
+    <!-- Vista di ricerca per i partner con filtri medici -->
+    <record id="view_res_partner_medical_search" model="ir.ui.view">
+        <field name="name">res.partner.medical.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                
+                <!-- Filtri per ruoli medici -->
+                <filter string="Pazienti" name="is_patient" domain="[('is_patient', '=', True)]"/>
+                <filter string="Pazienti in carico" name="is_currently_admitted" domain="[('is_currently_admitted', '=', True)]"/>
+                <filter string="Dottori" name="is_doctor" domain="[('is_doctor', '=', True)]"/>
+                <filter string="Terapisti" name="is_therapist" domain="[('is_therapist', '=', True)]"/>
+                <filter string="Infermieri" name="is_nurse" domain="[('is_nurse', '=', True)]"/>
+                
+                <!-- Filtri per personale sanitario -->
+                <separator/>
+                <filter string="Personale Sanitario" name="is_medical_staff" 
+                        domain="['|', '|', ('is_doctor', '=', True), ('is_therapist', '=', True), ('is_nurse', '=', True)]"/>
+                
+                <!-- Raggruppamenti -->
+                <group expand="0" string="Raggruppa per">
+                    <filter string="Ruolo" name="group_by_role" context="{'group_by': 'is_patient:desc,is_doctor:desc,is_therapist:desc,is_nurse:desc'}"/>
+                    <filter string="Stato in carico" name="group_by_admission" context="{'group_by': 'is_currently_admitted:desc'}"/>
+                    <filter string="Città" name="group_by_city" context="{'group_by': 'city'}"/>
+                    <filter string="Paese" name="group_by_country" context="{'group_by': 'country_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista tree per i partner con campi medici -->
+    <record id="view_res_partner_medical_tree" model="ir.ui.view">
+        <field name="name">res.partner.medical.tree</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="is_patient"/>
+                <field name="is_currently_admitted" attrs="{'invisible': [('is_patient', '=', False)]}"/>
+                <field name="is_doctor"/>
+                <field name="is_therapist"/>
+                <field name="is_nurse"/>
+                <field name="city"/>
+                <field name="country_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista kanban per i partner con campi medici -->
+    <record id="view_res_partner_medical_kanban" model="ir.ui.view">
+        <field name="name">res.partner.medical.kanban</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="is_patient"/>
+                <field name="is_currently_admitted"/>
+                <field name="is_doctor"/>
+                <field name="is_therapist"/>
+                <field name="is_nurse"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_res_partner_kanban">
+                            <div class="oe_kanban_details d-flex flex-column">
+                                <!-- Titolo del record -->
+                                <strong class="o_kanban_record_title oe_partner_heading">
+                                    <field name="display_name"/>
+                                </strong>
+                                
+                                <!-- Informazioni di contatto -->
+                                <div class="o_kanban_partner_links">
+                                    <field name="email" attrs="{'invisible': [('email', '=', False)]}"/>
+                                    <field name="phone" attrs="{'invisible': [('phone', '=', False)]}"/>
+                                </div>
+                                
+                                <!-- Badge per ruoli medici -->
+                                <div class="o_kanban_tags_section">
+                                    <span t-if="record.is_patient.raw_value" class="badge badge-info">Paziente</span>
+                                    <span t-if="record.is_currently_admitted.raw_value" class="badge badge-warning">In Carico</span>
+                                    <span t-if="record.is_doctor.raw_value" class="badge badge-success">Medico</span>
+                                    <span t-if="record.is_therapist.raw_value" class="badge badge-primary">Terapista</span>
+                                    <span t-if="record.is_nurse.raw_value" class="badge badge-secondary">Infermiere</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- explicit form view definition -->
+       <record id="patient_diagnosis_form" model="ir.ui.view">
+         <field name="name">patient.diagnosis.form</field>
+         <field name="model">patient.diagnosis</field>
+         <field name="arch" type="xml">
+             <form>
+                <sheet>
+                   <group>
+                       <field name="patient_diag_id" invisible="1"/>
+                       <field name="diagnosis_id"/>
+                   </group>
+                   <group>
+                       <field name="severity"/>
+                   </group>
+                </sheet>
+             </form>
+         </field>
+       </record>
+
+       <record id="patient_relation_form" model="ir.ui.view">
+         <field name="name">patient.relation.form</field>
+         <field name="model">patient.relation</field>
+         <field name="arch" type="xml">
+             <form>
+                <sheet>
+                   <group>
+                       <field name="main_model_id" invisible="1"/>
+                       <field name="contact_id"/>
+                   </group>
+                   <group>
+                       <field name="relation_type_id"/>
+                   </group>
+                </sheet>
+             </form>
+         </field>
+       </record>
+
+    <record id="patient_history_form" model="ir.ui.view">
+        <field name="name">patient.history.form</field>
+        <field name="model">medical.patient.history</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="patient_id" invisible="1"/>
+                        <field name="admission_date"/>
+                        <field name="discharge_date"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+        <!-- Estensione della vista `partner_contact_birthdate.view_partner_form` per aggiungere Data di Nascita e Età sulla stessa riga -->
+        <record id="view_form_inherited_birthdate" model="ir.ui.view">
+            <field name="name">view.form.inherited.birthdate</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="partner_contact_birthplace.view_personal_information_birthplace"/>
+            <field name="arch" type="xml">
+
+                <!-- Eliminazione dei campi prima del rimpiazzo -->
+                <xpath expr="//group[@name='personal_information_group']/field[@name='birthdate_date']" position="replace">
+                </xpath>
+                <xpath expr="//group[@name='personal_information_group']/field[@name='age']" position="replace">
+                </xpath>
+                <xpath expr="//group[@name='personal_information_group']/field[@name='birth_city']" position="replace">
+                </xpath>
+                <xpath expr="//group[@name='personal_information_group']/field[@name='birth_state_id']" position="replace">
+                </xpath>
+                <xpath expr="//group[@name='personal_information_group']/field[@name='birth_country_id']" position="replace">
+                </xpath>
+
+                <!-- Disposizione di Data di Nascita e Età sulla stessa riga -->
+                <xpath expr="//group[@name='personal_information_group']" position="inside" colspan="2">
+                    <group col="4">
+                        <field name="birthdate_date"/>
+                        <field name="age" attrs="{'invisible': [('birthdate_date', '=', False)]}"/>
+                    </group>
+                    <group col="3">
+                        <field name="birth_city"/>
+                        <field name="birth_state_id"/>
+                        <field name="birth_country_id"/>
+                    </group>
+                </xpath>
+
+            </field>
+        </record>
+
+    <!-- inheriting res.partner view -->
+        <record id="view_partner_form_inherited" model="ir.ui.view">
+            <field name="name">medical.partner.inherited</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='personal_information_group']" position="inside">
+                       <!-- Inserisci i nuovi campi nel tuo gruppo -->
+                       <separator string="Medical" colspan="2"/>
+                       <group>
+                           <field name="is_patient"/>
+                           <field name="is_currently_admitted" attrs="{'invisible': [('is_patient', '=', False)]}"/>
+                       </group>
+                       <newline/>
+                       <group col="3">
+                               <field name="is_doctor"/>
+                               <field name="is_therapist"/>
+                               <field name="is_nurse"/>
+                       </group>
+               </xpath>
+            <!-- Aggiungi scheda paziente se il campo is_patient è flaggato -->
+            <xpath expr="//page[@name='personal_information_page']" position="after">
+                <page string="Paziente" attrs="{'invisible': [('is_patient', '=', False)]}">
+                    <group>
+                        <group>
+                            <field name="birthdate_date"/>
+                            <field name="age" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="birth_city"/>
+                            <field name="birth_state_id"/>
+                            <field name="birth_country_id"/>
+                        </group>
+                    </group>
+                        <group>
+                            <separator string="Diagnosi"/>
+                    <field name="patient_diagnosis_ids" context="{'default_patient_diag_id': active_id, 'hide_patient_diag_id': True}">
+                        <tree>
+                            <field name="diagnosis_id"/>
+                            <field name="severity"/>
+                            <field name="patient_diag_id" invisible="1"/>
+                        </tree>
+                    </field>
+                        </group>
+                        <group string="Familiari">
+                            <field name="patient_relations" context="{'default_main_model_id': active_id, 'hide_main_model_id': True}">
+                                <tree>
+                                    <field name="contact_id"/>
+                                    <field name="relation_type_id"/>
+                                    <field name="main_model_id" invisible="1"/>
+                                </tree>
+                            </field>
+                        </group>
+                    <group string="Storico periodi terapici">
+                        <field name="patient_history_ids" context="{'default_patient_id': active_id}">
+                            <tree>
+                                <field name="admission_date"/>
+                                <field name="discharge_date"/>
+                                <field name="notes"/>
+                                <field name="patient_id" invisible="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+            </field>
+        </record>
+
+</odoo>
+

@@ -1,0 +1,48 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, fields, api
+
+    relation_type = fields.Selection([
+        ('family', 'Family'),
+        ('friend', 'Friend'),
+        ('colleague', 'Colleague'),
+    ], string='Relation Type', required=True)
+
+class PatientRelation(models.Model):
+    _name = 'patient.relation'
+    _description = 'Crea la relazione tra il Paziente e gli altri Contatti'
+    
+    main_model_id = fields.Many2one('res.partner', string='Paziente', required=True, ondelete='cascade')
+    contact_id = fields.Many2one('res.partner', string='Contatto Relazione', required=True, ondelete='cascade')
+    relation_type = fields.Selection([
+        ('family', 'Family'),
+        ('friend', 'Friend'),
+        ('colleague', 'Colleague'),
+    ], string='Relation Type', required=True)
+
+
+class ResPartner(models.Model):
+    _inherit = "res.partner"
+
+    # Modificato per fare riferimento ai campi esistenti nel modulo partner_contact_birthplace
+    patient_birthplace = fields.Char(related='birth_city', string='Città di nascita', readonly=False)
+    patient_birth_state_id = fields.Many2one(related='birth_state_id', comodel_name="res.country.state", string='Provincia di nascita', readonly=False)
+    patient_birth_country_id = fields.Many2one(related='birth_country_id', comodel_name="res.country", string='Stato di nascita', readonly=False)
+
+    patient_birthdate = fields.Date(related='birthdate_date', string='Data di nascita', readonly=False)
+#    patient_age = fields.Integer(compute='_compute_patient_age', string='Età', store=True)
+
+    patient_relatives_ids = fields.Many2many('res.partner', string='Familiari')
+#    patient_relation_type = fields.Many2one('relation.type', string='Tipo di Relazione')
+
+#    diagnosis = fields.Many2one('diagnosis', string='Diagnosi')
+#    severity = fields.Selection([('low', 'Basso'), ('medium', 'Medio'), ('high', 'Alto')], string='Grado')
+#    admission_date = fields.Date(string='Data di Carico')
+#    discharge_date = fields.Date(string='Dimissioni')
+#    history_ids = fields.One2many('patient.history', 'patient_id', string='Storico')
+
+#    is_patient = fields.Boolean(string='Paziente')
+#    is_doctor = fields.Boolean(string='Medico')
+#    is_nurse = fields.Boolean(string='Infermiere')
+#    is_therapist = fields.Boolean(string='Terapista')
+

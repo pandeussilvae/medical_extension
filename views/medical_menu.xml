@@ -1,0 +1,290 @@
+<odoo>
+  <data>
+    <!-- explicit form view definition -->
+       <record id="medical_extension_diagnosis_type_form" model="ir.ui.view">
+         <field name="name">medical.diagnosis.form</field>
+         <field name="model">medical.diagnosis</field>
+         <field name="arch" type="xml">
+             <form>
+                <sheet>
+                   <group>
+                       <field name="name"/>
+                   </group>
+                   <group>
+                       <field name="description"/>
+                   </group>
+                </sheet>
+             </form>
+         </field>
+       </record>
+
+    <!-- explicit tree view definition -->
+       <record id="medical_extension_diagnosis_type_tree" model="ir.ui.view">
+         <field name="name">medical.diagnosis.tree</field>
+         <field name="model">medical.diagnosis</field>
+         <field name="arch" type="xml">
+                   <tree>
+                       <field name="name"/>
+                       <field name="description"/>
+                   </tree>
+         </field>
+       </record>
+
+    <!-- explicit kanban view definition -->
+    <record id="medical_extension_diagnosis_type_kanban" model="ir.ui.view">
+        <field name="name">medical.diagnosis.kanban</field>
+        <field name="model">medical.diagnosis</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="description"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_res_partner_kanban">
+                            <div class="oe_kanban_details d-flex flex-column">
+                                <!-- Titolo del record -->
+                                <strong class="o_kanban_record_title oe_partner_heading">
+                                    <field name="display_name"/>
+                                </strong>
+                                
+                                <!-- Sezione dei tags -->
+                                <div class="o_kanban_tags_section oe_kanban_partner_categories"></div>
+                                
+                                <!-- Lista con condizioni -->
+                                <ul>
+                                    <!-- Condizione per il campo function -->
+                                    <li>
+                                        <field name="description"/>
+                                    </li>
+                                </ul>
+
+                                <!-- Sezione link -->
+                                <div class="o_row">
+                                    <span class="oe_kanban_partner_links"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- actions opening views on models -->
+        <record id="medical_action" model="ir.actions.act_window">
+            <field name="name">Pazienti in Carico</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'default_is_patient': True, 'search_default_is_currently_admitted': True}</field>
+            <field name="domain">[('is_patient', '=', True), ('is_currently_admitted', '=', True)]</field>
+            <field name="search_view_id" ref="medical_extension.view_res_partner_medical_search"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('medical_extension.view_res_partner_medical_kanban')}),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('medical_extension.view_res_partner_medical_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('medical_extension.view_partner_form_inherited')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Nessun paziente attualmente in carico!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_patients_admitted_action" model="ir.actions.act_window">
+            <field name="name">Pazienti in Carico</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'default_is_patient': True, 'search_default_is_currently_admitted': True}</field>
+            <field name="domain">[('is_patient', '=', True), ('is_currently_admitted', '=', True)]</field>
+            <field name="search_view_id" ref="medical_extension.view_res_partner_medical_search"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('medical_extension.view_res_partner_medical_kanban')}),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('medical_extension.view_res_partner_medical_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('medical_extension.view_partner_form_inherited')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Nessun paziente attualmente in carico!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_all_patients_action" model="ir.actions.act_window">
+            <field name="name">Tutti i Pazienti</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'default_is_patient': True, 'search_default_is_patient': True}</field>
+            <field name="domain">[('is_patient', '=', True)]</field>
+            <field name="search_view_id" ref="medical_extension.view_res_partner_medical_search"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('medical_extension.view_res_partner_medical_kanban')}),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('medical_extension.view_res_partner_medical_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('medical_extension.view_partner_form_inherited')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Inserisci un nuovo paziente!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_diagnosis_type" model="ir.actions.act_window">
+            <field name="name">Tipi di Diagnosi</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">medical.diagnosis</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Definisci i tipi di Diagnosi!
+                </p>
+            </field>
+        </record>
+
+        <record id="patient_relation_type_action" model="ir.actions.act_window">
+            <field name="name">Relazioni Familiari</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">patient.relation.type</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Definisci i tipi di relazioni familiari!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_appointment_action" model="ir.actions.act_window">
+            <field name="name">Appuntamenti</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calendar.event</field>
+            <field name="view_mode">calendar,tree,form</field>
+            <field name="context">{'search_default_is_patient': True, 'search_default_is_doctor': True, 'search_default_is_therapist': True, 'search_default_is_nurse': True}</field>
+            <field name="domain">[
+                  '|', '|', '|',
+                 ('partner_ids.is_patient', '=', True),
+                 ('partner_ids.is_doctor', '=', True),
+                 ('partner_ids.is_therapist', '=', True),
+                 ('partner_ids.is_nurse', '=', True)
+            ]</field>
+        </record>
+
+        <!-- Actions for Personnel Menu and Submenus -->
+        <record id="medical_staff_action" model="ir.actions.act_window">
+            <field name="name">Personale Sanitario</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">['|', '|', ('is_doctor', '=', True), ('is_therapist', '=', True), ('is_nurse', '=', True)]</field>
+            <field name="context">{'default_is_medical_staff': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Inserisci un nuovo membro del personale sanitario!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_doctors_action" model="ir.actions.act_window">
+            <field name="name">Dottori</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('is_doctor', '=', True)]</field>
+            <field name="context">{'default_is_doctor': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Inserisci un nuovo dottore!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_therapists_action" model="ir.actions.act_window">
+            <field name="name">Terapisti</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('is_therapist', '=', True)]</field>
+            <field name="context">{'default_is_therapist': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Inserisci un nuovo terapista!
+                </p>
+            </field>
+        </record>
+
+        <record id="medical_nurses_action" model="ir.actions.act_window">
+            <field name="name">Infermieri</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('is_nurse', '=', True)]</field>
+            <field name="context">{'default_is_nurse': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Inserisci un nuovo infermiere!
+                </p>
+            </field>
+        </record>
+
+    <!-- Top menu item -->
+        <menuitem id="menu_medical"
+                  name="Medical"
+                  action="medical_action"
+                  web_icon="medical_extension/static/src/img/logo_white.png"
+                  sequence="10"/>
+
+        <!-- Configura le voci di menu per il modulo -->
+        <menuitem id="menu_appointment"
+                  name="Appuntamenti"
+                  parent="menu_medical"
+                  action="medical_appointment_action"
+                  sequence="20"/>
+        <menuitem id="menu_patients"
+                  name="Pazienti"
+                  parent="menu_medical"
+                  action="medical_action"
+                  sequence="30"/>
+        <menuitem id="menu_all_patients"
+                  name="Tutti i Pazienti"
+                  parent="menu_medical"
+                  action="medical_all_patients_action"
+                  sequence="31"/>
+        <menuitem id="menu_medical_staff"
+                  name="Personale Sanitario"
+                  parent="menu_medical"
+                  action="medical_staff_action"
+                  sequence="40"/>
+        <menuitem id="menu_configuration"
+                  name="Configurazione"
+                  parent="menu_medical"
+                  sequence="50"/>
+
+        <!-- Sottomenu per le configurazioni -->
+        <menuitem id="menu_tipi_diagnosi"
+                  name="Diagnosi"
+                  parent="menu_configuration"
+                  action="medical_diagnosis_type"
+                  sequence="35"/>
+
+        <menuitem id="menu_family_relations"
+                  name="Relazioni Familiari"
+                  parent="menu_configuration"
+                  action="patient_relation_type_action"
+                  sequence="51"/>
+
+        <!-- Sottomenu per il personale sanitario -->
+        <menuitem id="menu_doctors"
+                  name="Dottori"
+                  parent="menu_medical_staff"
+                  action="medical_doctors_action"
+                  sequence="41"/>
+        <menuitem id="menu_therapists"
+                  name="Terapisti"
+                  parent="menu_medical_staff"
+                  action="medical_therapists_action"
+                  sequence="42"/>
+        <menuitem id="menu_nurses"
+                  name="Infermieri"
+                  parent="menu_medical_staff"
+                  action="medical_nurses_action"
+                  sequence="43"/>
+  </data>
+</odoo>
