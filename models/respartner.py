@@ -122,7 +122,10 @@ class ResPartner(models.Model):
                 continue
 
             # Ordina i periodi terapici per data di ammissione decrescente
-            sorted_periods = partner.patient_history_ids.sorted(lambda h: h.admission_date or fields.Date.min, reverse=True)
+            sorted_periods = partner.patient_history_ids.sorted(
+                lambda h: h.admission_date or fields.Date.from_string('1900-01-01'), 
+                reverse=True
+            )
             
             # Se non ci sono periodi, non è dimesso
             if not sorted_periods:
@@ -133,8 +136,12 @@ class ResPartner(models.Model):
             last_period = sorted_periods[0]
             
             # Il paziente è dimesso se l'ultimo periodo ha una data di dimissione
-            # e non ci sono periodi aperti successivi
-            partner.is_discharged = bool(last_period.discharge_date and not partner.is_currently_admitted)
+            # e non ci sono periodi aperti (con data di carico ma senza dimissioni)
+            has_open_periods = any(
+                h.admission_date and not h.discharge_date 
+                for h in partner.patient_history_ids
+            )
+            partner.is_discharged = bool(last_period.discharge_date and not has_open_periods)
 
     patient_relations = fields.One2many('patient.relation', 'main_model_id', string='Relazioni Paziente')
     patient_diagnosis_ids = fields.One2many('patient.diagnosis', 'patient_diag_id', string='Diagnosi del Paziente')
